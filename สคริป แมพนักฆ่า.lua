@@ -403,6 +403,43 @@ Btn4.MouseButton1Click:Connect(function()
 end)
 
 
+
+-- ==========================================
+-- 📌 [ปุ่มที่ 5] เทเลพอร์ตกลับบ้าน (พิกัดเป๊ะๆ)
+-- ==========================================
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
+
+local Btn5 = Instance.new("TextButton")
+Btn5.Name = "ScriptButton5"
+Btn5.Parent = Container
+Btn5.BackgroundColor3 = Color3.fromRGB(50, 150, 200)
+Btn5.Position = UDim2.new(0, 0, 0, 225)
+Btn5.Size = UDim2.new(1, 0, 0, 45)
+Btn5.Font = Enum.Font.GothamBold
+Btn5.Text = "🏡 เทเลพอร์ตกลับบ้าน"
+Btn5.TextColor3 = Color3.fromRGB(255, 255, 255)
+Btn5.TextSize = 14
+
+local Corner5 = Instance.new("UICorner")
+Corner5.CornerRadius = UDim.new(0, 6)
+Corner5.Parent = Btn5
+
+Btn5.MouseButton1Click:Connect(function()
+    local character = localPlayer.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        -- พิกัดบ้านที่คุณให้มา (เซ็ต Y สูงขึ้นนิดหน่อย +3 กันตัวละครจมพื้น)
+        local homePosition = Vector3.new(-7.17, 266.55 + 3, -4.11)
+        
+        character.HumanoidRootPart.CFrame = CFrame.new(homePosition)
+        
+        Btn5.Text = "✅ กลับบ้านสำเร็จ!"
+        task.wait(1.5)
+        Btn5.Text = "🏡 เทเลพอร์ตกลับบ้าน"
+    end
+end)
+
+
     
 
 
