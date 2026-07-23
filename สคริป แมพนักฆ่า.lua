@@ -318,8 +318,9 @@ Btn3.MouseButton1Click:Connect(function()
 end)
 
 
+
 -- ==========================================
--- 📌 [ปุ่มที่ 4] ระบบบินสำหรับมือถือเพียวๆ (ความเร็ว 3 ทิศทางตรงเป๊ะ)
+-- 📌 [ปุ่มที่ 4] ระบบบินสำหรับมือถือ (แก้อาการเดินหน้าเป็นถอยหลัง, ซ้ายขวาสลับ)
 -- ==========================================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -372,7 +373,7 @@ Btn4.MouseButton1Click:Connect(function()
         bv.maxForce = Vector3.new(9e9, 9e9, 9e9)
         bv.Parent = hrp
         
-        -- ลูปควบคุมทิศทางสำหรับมือถือโดยเฉพาะ
+        -- ลูปควบคุมทิศทาง (เอาเครื่องหมายลบออกแล้ว เพื่อให้ทิศทางตรงกับจอยสติ๊กปกติ)
         flyConnection = RunService.RenderStepped:Connect(function()
             if not getgenv().Script4_FlyToggle or not char or not hrp.Parent then return end
             
@@ -380,8 +381,8 @@ Btn4.MouseButton1Click:Connect(function()
             local moveDirection = Vector3.new(0, 0, 0)
             
             if humanoid and humanoid.MoveDirection.Magnitude > 0 then
-                -- ปรับเทียบเวกเตอร์สำหรับจอยสติ๊กมือถือโดยเฉพาะ
-                moveDirection = camera.CFrame:VectorToWorldSpace(-humanoid.MoveDirection) * (fixedSpeed * 10)
+                -- แก้ไขโดยการเอาเครื่องหมายลบ (-) ออก ให้ทิศทางวิ่งตามจอยสติ๊กตรงๆ
+                moveDirection = camera.CFrame:VectorToWorldSpace(humanoid.MoveDirection) * (fixedSpeed * 10)
             end
             
             bv.velocity = moveDirection
