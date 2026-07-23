@@ -485,6 +485,53 @@ end)
 
 
 
+-- ==========================================
+-- 📌 [ปุ่มเช็คพิกัด] กดเพื่อเช็คและก๊อปปี้พิกัดปัจจุบัน
+-- ==========================================
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
+
+local BtnCoord = Instance.new("TextButton")
+BtnCoord.Name = "CoordButton"
+BtnCoord.Parent = Container
+BtnCoord.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+BtnCoord.Position = UDim2.new(0, 0, 0, 280) -- ปรับตำแหน่ง Y ตามความเหมาะสม (อันนี้ต่อจากปุ่มที่ 5)
+BtnCoord.Size = UDim2.new(1, 0, 0, 45)
+BtnCoord.Font = Enum.Font.GothamBold
+BtnCoord.Text = "📍 เช็คพิกัดปัจจุบัน"
+BtnCoord.TextColor3 = Color3.fromRGB(255, 255, 255)
+BtnCoord.TextSize = 14
+
+local CornerCoord = Instance.new("UICorner")
+CornerCoord.CornerRadius = UDim.new(0, 6)
+CornerCoord.Parent = BtnCoord
+
+BtnCoord.MouseButton1Click:Connect(function()
+    local character = localPlayer.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        local pos = character.HumanoidRootPart.Position
+        local cf = character.HumanoidRootPart.CFrame
+        
+        -- แสดงพิกัดใน Console / Output
+        print("===== 📌 พิกัดปัจจุบัน =====")
+        print("Vector3.new(" .. math.floor(pos.X) .. ", " .. math.floor(pos.Y) .. ", " .. math.floor(pos.Z) .. ")")
+        print("CFrame: " .. tostring(cf))
+        
+        -- พยายามก๊อปปี้ลงคลิปบอร์ด (ถ้าโปรแกรมรันสคริปต์รองรับ)
+        local coordString = string.format("Vector3.new(%.2f, %.2f, %.2f)", pos.X, pos.Y, pos.Z)
+        pcall(function()
+            setclipboard(coordString)
+        end)
+        
+        BtnCoord.Text = "✅ ก๊อปปี้พิกัดแล้ว!"
+        task.wait(1.5)
+        BtnCoord.Text = "📍 เช็คพิกัดปัจจุบัน"
+    end
+end)
+
+
+
+
 -- ระบบเปิด/ปิดหน้าต่างหลักของเมนู
 local isOpened = false
 
