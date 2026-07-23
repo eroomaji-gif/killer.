@@ -402,86 +402,8 @@ Btn4.MouseButton1Click:Connect(function()
     end
 end)
 
--- ==========================================
--- 📌 [ปุ่มที่ 5] เทเลพอร์ตกลับบ้านตัวเอง
--- ==========================================
-local Players = game:GetService("Players")
-local localPlayer = Players.LocalPlayer
-
-local Btn5 = Instance.new("TextButton")
-Btn5.Name = "ScriptButton5"
-Btn5.Parent = Container
-Btn5.BackgroundColor3 = Color3.fromRGB(50, 150, 200)
-Btn5.Position = UDim2.new(0, 0, 0, 225)
-Btn5.Size = UDim2.new(1, 0, 0, 45)
-Btn5.Font = Enum.Font.GothamBold
-Btn5.Text = "🏡 เทเลพอร์ตกลับบ้าน"
-Btn5.TextColor3 = Color3.fromRGB(255, 255, 255)
-Btn5.TextSize = 14
-
-local Corner5 = Instance.new("UICorner")
-Corner5.CornerRadius = UDim.new(0, 6)
-Corner5.Parent = Btn5
-
-Btn5.MouseButton1Click:Connect(function()
-    local character = localPlayer.Character
-    if not character or not character:FindFirstChild("HumanoidRootPart") then return end
-    
-    Btn5.Text = "🔍 กำลังหาบ้าน..."
-    
-    local targetPart = nil
-    -- คำที่ใช้ค้นหาโซนบ้านหรือฐานของผู้เล่น
-    local keywords = {"house", "home", "base", "spawn", "room"}
-    
-    -- วนลูปหาใน Workspace โดยพยายามหาชิ้นส่วนที่มีชื่อตรงกับผู้เล่นด้วย (ถ้ามี)
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("BasePart") then
-            local nameLower = string.lower(obj.Name)
-            -- เช็คว่ามีคำว่าบ้าน/ฐาน และอาจจะเกี่ยวข้องกับชื่อตัวเองด้วย
-            for _, kw in ipairs(keywords) do
-                if string.find(nameLower, kw) then
-                    -- ถ้าชื่อชิ้นส่วนตรงกับชื่อผู้เล่นด้วย จะยิ่งแม่นยำว่าเป็นบ้านของตัวเอง
-                    if string.find(nameLower, string.lower(localPlayer.Name)) then
-                        targetPart = obj
-                        break
-                    elseif not targetPart then
-                        targetPart = obj -- ถ้ายังไม่เจอแบบระบุชื่อ ให้เก็บบ้านอันแรกที่เจอไว้ก่อน
-                    end
-                end
-            end
-            if targetPart and string.find(string.lower(targetPart.Name), string.lower(localPlayer.Name)) then 
-                break 
-            end
-        end
-    end
-    
-    if targetPart then
-        -- วาร์ปไปที่บ้าน (บวกความสูงขึ้นนิดหน่อยกันติดพื้น)
-        character.HumanoidRootPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
-        Btn5.Text = "✅ กลับบ้านสำเร็จ!"
-        task.wait(1.5)
-        Btn5.Text = "🏡 เทเลพอร์ตกลับบ้าน"
-    else
-        Btn5.Text = "❌ หาบ้านไม่พบ"
-        task.wait(1.5)
-        Btn5.Text = "🏡 เทเลพอร์ตกลับบ้าน"
-    end
-end)
 
     
-    if targetPart then
-        -- ถ้าเจอ ให้วาร์ปไปโผล่ตรงจุดนั้นทันที (บวกขึ้นไปนิดนึงกันจมพื้น)
-        character.HumanoidRootPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
-        Btn5.Text = "✅ วาร์ปสำเร็จ!"
-        task.wait(1.5)
-        Btn5.Text = "🎯 สแกนวาร์ปไปจุดชนะ (Win)"
-    else
-        Btn5.Text = "❌ ไม่พบจุดชนะในแมพนี้"
-        task.wait(1.5)
-        Btn5.Text = "🎯 สแกนวาร์ปไปจุดชนะ (Win)"
-    end
-end)
-
 
 
 
