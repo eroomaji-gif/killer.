@@ -491,6 +491,58 @@ end)
 
 
 
+-- ==========================================
+-- 📌 [ปุ่มที่ 7] ระบบ Noclip (เดินทะลุกำแพง / สิ่งกีดขวาง): ON/OFF
+-- ==========================================
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local localPlayer = Players.LocalPlayer
+
+getgenv().Script7_NoclipToggle = false
+
+local Btn7 = Instance.new("TextButton")
+Btn7.Name = "ScriptButton7"
+Btn7.Parent = Container
+Btn7.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+Btn7.Position = UDim2.new(0, 0, 0, 335)
+Btn7.Size = UDim2.new(1, 0, 0, 45)
+Btn7.Font = Enum.Font.GothamBold
+Btn7.Text = "👻 เดินทะลุกำแพง: OFF"
+Btn7.TextColor3 = Color3.fromRGB(255, 255, 255)
+Btn7.TextSize = 14
+
+local Corner7 = Instance.new("UICorner")
+Corner7.CornerRadius = UDim.new(0, 6)
+Corner7.Parent = Btn7
+
+-- ลูปคอยปิดการชน (CanCollide) ของชิ้นส่วนตัวละครทุกๆ เฟรม
+RunService.Stepped:Connect(function()
+    if getgenv().Script7_NoclipToggle then
+        local char = localPlayer.Character
+        if char then
+            for _, part in ipairs(char:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end
+    end
+end)
+
+Btn7.MouseButton1Click:Connect(function()
+    getgenv().Script7_NoclipToggle = not getgenv().Script7_NoclipToggle
+    
+    if getgenv().Script7_NoclipToggle then
+        Btn7.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+        Btn7.Text = "👻 เดินทะลุกำแพง: ON"
+    else
+        Btn7.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        Btn7.Text = "👻 เดินทะลุกำแพง: OFF"
+    end
+end)
+
+
+
 
 -- ระบบเปิด/ปิดหน้าต่างหลักของเมนู
 local isOpened = false
