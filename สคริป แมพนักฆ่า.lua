@@ -361,16 +361,16 @@ end)
 
 
 -- ==========================================
--- 📌 [ปุ่มที่ 3 - ล่างสุด] วาปไปหน้าประตู (กดครั้งเดียวทำงานทันที)
+-- 📌 [ปุ่มที่ 3 - ล่างสุด] วาปหนีไปประตูที่ปลอดภัย (Pro)
 -- ==========================================
 local Btn3 = Instance.new("TextButton")
 Btn3.Name = "ScriptButton3"
-Btn3.Parent = Container
-Btn3.BackgroundColor3 = Color3.fromRGB(50, 120, 200) -- สีฟ้า (กดสั่งทีเดียว)
+Btn3.Parent = Container -- เปลี่ยน Parent กลับมาเป็น Container ตามต้นฉบับของคุณแล้วครับ
+Btn3.BackgroundColor3 = Color3.fromRGB(0, 150, 200)
 Btn3.Position = UDim2.new(0, 0, 0, 120)
 Btn3.Size = UDim2.new(1, 0, 0, 45)
 Btn3.Font = Enum.Font.GothamBold
-Btn3.Text = "🚪 วาปไปหน้าประตู"
+Btn3.Text = "🚪 หนีไปประตูที่ปลอดภัย (Pro)"
 Btn3.TextColor3 = Color3.fromRGB(255, 255, 255)
 Btn3.TextSize = 14
 
@@ -378,39 +378,98 @@ local Corner3 = Instance.new("UICorner")
 Corner3.CornerRadius = UDim.new(0, 6)
 Corner3.Parent = Btn3
 
--- ฟังก์ชันค้นหาประตูทางออก
-local function findKillerExitDoor()
-    local bestTarget = nil
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("BasePart") then
-            local nameLower = string.lower(obj.Name)
-            if string.find(nameLower, "exit") or string.find(nameLower, "escape") or string.find(nameLower, "door") or string.find(nameLower, "gate") or string.find(nameLower, "win") then
-                if obj.Transparency < 1 then
-                    bestTarget = obj
-                    if string.find(nameLower, "exit") or string.find(nameLower, "escape") then
-                        return obj
+-- 1. ฟังก์ชันค้นหาฆาตกรแบบครอบคลุม (เช็คหลายคีย์เวิร์ดอาวุธ)
+local function findKiller()
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= localPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+            local backpack = p:FindFirstChild("Backpack")
+            local char = p.Character
+            
+            -- เช็คว่ามีอาวุธติดตัวหรือในกระเป๋าหรือไม่
+            for _, item in ipairs(char:GetChildren()) do
+                if item:IsA("Tool") then
+                    local nameL = string.lower(item.Name)
+                    if string.find(nameL, "knife") or string.find(nameL, "sword") or string.find(nameL, "blade") or string.find(nameL, "weapon") or string.find(nameL, "gun") then
+                        return char.HumanoidRootPart
+                    end
+                end
+            end
+            
+            if backpack then
+                for _, item in ipairs(backpack:GetChildren()) do
+                    if item:IsA("Tool") then
+                        local nameL = string.lower(item.Name)
+                        if string.find(nameL, "knife") or string.find(nameL, "sword") or string.find(nameL, "blade") or string.find(nameL, "weapon") or string.find(nameL, "gun") then
+                            return char.HumanoidRootPart
+                        end
                     end
                 end
             end
         end
     end
-    return bestTarget
+    return nil
 end
 
+-- 2. ฟังก์ชันค้นหาประตูทางออกที่ฉลาดขึ้น (รองรับหลากหลายชื่อ + เช็คระยะผู้เล่นและฆาตกร)
+local function findSmartSafestDoor()
+    local bestDoor = nil
+    local bestScore = -999999
+    local myChar = localPlayer.Character
+    if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then return nil end
+    local myRoot = myChar.HumanoidRootPart
+    local killerRoot = findKiller()
+    
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") then
+            local nameLower = string.lower(obj.Name)
+            -- เพิ่มคีย์เวิร์ดตามที่รีวิวแนะนำ
+            if string.find(nameLower, "exit") or string.find(nameLower, "escape") or 
+               string.find(nameLower, "door") or string.find(nameLower, "gate") or 
+               string.find(nameLower, "win") or string.find(nameLower, "finish") or 
+               string.find(nameLower, "goal") or string.find(nameLower, "portal") or 
+               string.find(nameLower, "safezone") or string.find(nameLower, "escapearea") then
+                
+                if obj.Transparency < 1 then
+                    local distToMe = (obj.Position - myRoot.Position).Magnitude
+                    local score = 0
+                    
+                    if killerRoot then
+                        local distToKiller = (obj.Position - killerRoot.Position).Magnitude
+                        -- คะแนนความปลอดภัย = ระยะห่างจากฆาตกร (ยิ่งไกลยิ่งดี) หักลบด้วยระยะทางที่เราต้องเดิน (ยิ่งใกลยิ่งดี)
+                        score = distToKiller - (distToMe * 0.5)
+                    else
+                        -- ถ้าไม่เจอฆาตกร ให้เลือกประตูที่ใกล้ตัวเราที่สุดก่อน
+                        score = -distToMe
+                    end
+                    
+                    if score > bestScore then
+                        bestScore = score
+                        bestDoor = obj
+                    end
+                end
+            end
+        end
+    end
+    
+    return bestDoor
+end
+
+-- 3. กดปุ่มเพื่อทำงาน
 Btn3.MouseButton1Click:Connect(function()
     pcall(function()
         local myChar = localPlayer.Character
         if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then return end
         
-        local targetDoor = findKillerExitDoor()
+        local targetDoor = findSmartSafestDoor()
         if targetDoor then
             myChar.HumanoidRootPart.CFrame = targetDoor.CFrame + Vector3.new(0, 3, 0)
-            print("[Escape] วาบมาที่ประตูทางออกสำเร็จ!")
+            print("[SmartEscape] วาบหนีมายังประตูที่ปลอดภัยที่สุดสำเร็จ!")
         else
-            print("[Error] ยังไม่พบประตูทางออก หรือยังไม่ถึงเวลาเปิด")
+            print("[Error] ยังไม่พบประตูทางออกในแมพนี้")
         end
     end)
 end)
+
 
 
 
