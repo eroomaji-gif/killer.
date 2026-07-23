@@ -265,6 +265,101 @@ end)
 
 
 
+
+-- ==========================================
+-- 📌 [ปุ่มที่ 4] ระบบบิน (Fly) - แก้ไขสมบูรณ์
+-- ==========================================
+getgenv().Script4_FlyToggle = false
+
+local BtnFly = Instance.new("TextButton")
+BtnFly.Name = "FlyButton"
+BtnFly.Parent = ContentContainer
+BtnFly.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+BtnFly.Size = UDim2.new(1, 0, 0, 45)
+BtnFly.Font = Enum.Font.GothamBold
+BtnFly.Text = "✈️ เปิดระบบบิน: OFF"
+BtnFly.TextColor3 = Color3.fromRGB(255, 255, 255)
+BtnFly.TextSize = 14
+
+local CornerFly = Instance.new("UICorner")
+CornerFly.CornerRadius = UDim.new(0, 6)
+CornerFly.Parent = BtnFly
+
+local RunService = game:GetService("RunService")
+local flyConnection = nil
+local bv, bg = nil, nil
+local fixedSpeed = 2 -- ปรับความเร็วการบินตรงนี้
+
+BtnFly.MouseButton1Click:Connect(function()
+    getgenv().Script4_FlyToggle = not getgenv().Script4_FlyToggle
+    local character = localPlayer.Character
+    if not character then return end
+    
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    local humanoid = character:FindFirstChild("Humanoid")
+    
+    if getgenv().Script4_FlyToggle then
+        BtnFly.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+        BtnFly.Text = "✈️ เปิดระบบบิน: ON"
+        
+        if hrp and not hrp:FindFirstChild("FlyBodyVelocity") then
+            bv = Instance.new("BodyVelocity")
+            bv.Name = "FlyBodyVelocity"
+            bv.Parent = hrp
+            bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+            bv.Velocity = Vector3.zero
+            
+            bg = Instance.new("BodyGyro")
+            bg.Name = "FlyBodyGyro"
+            bg.Parent = hrp
+            bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+            bg.CFrame = hrp.CFrame
+            
+            if humanoid then
+                humanoid.PlatformStand = true
+            end
+            
+            -- ลูปควบคุมทิศทางการบิน (จัดการความเร็วและมุมมองกล้องให้ถูกต้อง)
+            flyConnection = RunService.RenderStepped:Connect(function()
+                if not getgenv().Script4_FlyToggle or not character or not hrp.Parent then
+                    return
+                end
+
+                local camera = workspace.CurrentCamera
+
+                if humanoid then
+                    bv.Velocity = humanoid.MoveDirection * (fixedSpeed * 10)
+                else
+                    bv.Velocity = Vector3.zero
+                end
+
+                bg.CFrame = camera.CFrame
+            end)
+        end
+    else
+        BtnFly.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        BtnFly.Text = "✈️ เปิดระบบบิน: OFF"
+        
+        if flyConnection then
+            flyConnection:Disconnect()
+            flyConnection = nil
+        end
+        
+        if hrp then
+            if hrp:FindFirstChild("FlyBodyVelocity") then hrp.FlyBodyVelocity:Destroy() end
+            if hrp:FindFirstChild("FlyBodyGyro") then hrp.FlyBodyGyro:Destroy() end
+        end
+        
+        if humanoid then
+            humanoid.PlatformStand = false
+        end
+    end
+end)
+
+
+
+
+
 -- ==========================================
 -- 📌 [ปุ่มที่ 3 - ล่างสุด] วาปไปหน้าประตู (กดครั้งเดียวทำงานทันที)
 -- ==========================================
