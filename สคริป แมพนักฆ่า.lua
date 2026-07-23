@@ -403,23 +403,19 @@ Btn4.MouseButton1Click:Connect(function()
 end)
 
 -- ==========================================
--- 📌 [ปุ่มที่ 5] ระบบเทเลพอร์ตกลับหน้าลอบบี้ (Teleport to Lobby)
+-- 📌 [ปุ่มที่ 5] สแกนหาจุดชนะ/ทางออกแล้ววาร์ปไปทันที
 -- ==========================================
-local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
-
--- หมายเหตุ: ใส่ PlaceId ของเกมหน้าลอบบี้ของคุณแทนตัวเลข 0 ด้านล่างนี้ครับ
-local lobbyPlaceId = 4580204640 -- 👈 เปลี่ยนตัวเลข 0 เป็น PlaceId ของแมพ Lobbby ของคุณ
 
 local Btn5 = Instance.new("TextButton")
 Btn5.Name = "ScriptButton5"
 Btn5.Parent = Container
-Btn5.BackgroundColor3 = Color3.fromRGB(50, 100, 200)
+Btn5.BackgroundColor3 = Color3.fromRGB(150, 50, 200)
 Btn5.Position = UDim2.new(0, 0, 0, 225)
 Btn5.Size = UDim2.new(1, 0, 0, 45)
 Btn5.Font = Enum.Font.GothamBold
-Btn5.Text = "🏠 กลับหน้าลอบบี้ (Lobby)"
+Btn5.Text = "🎯 สแกนวาร์ปไปจุดชนะ (Win)"
 Btn5.TextColor3 = Color3.fromRGB(255, 255, 255)
 Btn5.TextSize = 14
 
@@ -428,25 +424,42 @@ Corner5.CornerRadius = UDim.new(0, 6)
 Corner5.Parent = Btn5
 
 Btn5.MouseButton1Click:Connect(function()
-    if lobbyPlaceId == 0 then
-        warn("กรุณาใส่ PlaceId ของหน้าลอบบี้ที่ตัวแปร lobbyPlaceId ก่อนใช้งาน!")
-        return
+    local character = localPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+    
+    Btn5.Text = "🔍 กำลังสแกนหาทางออก..."
+    
+    local targetPart = nil
+    
+    -- คำที่ระบบจะใช้สแกนหา (ชื่อชิ้นส่วนมักจะเกี่ยวกับพวกนี้ครับ)
+    local keywords = {"win", "door", "exit", "finish", "escape", "teleport", "portal", "Lobby"}
+    
+    -- ค้นหาใน Workspace ทั้งหมด
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") then
+            local nameLower = string.lower(obj.Name)
+            for _, kw in ipairs(keywords) do
+                if string.find(nameLower, kw) then
+                    targetPart = obj
+                    break
+                end
+            end
+            if targetPart then break end
+        end
     end
     
-    Btn5.BackgroundColor3 = Color3.fromRGB(200, 150, 50)
-    Btn5.Text = "⏳ กำลังพาไปลอบบี้..."
-    
-    local success, err = pcall(function()
-        TeleportService:Teleport(lobbyPlaceId, localPlayer)
-    end)
-    
-    if not success then
-        warn("เทเลพอร์ตไม่สำเร็จ: " .. tostring(err))
-        Btn5.BackgroundColor3 = Color3.fromRGB(50, 100, 200)
-        Btn5.Text = "🏠 กลับหน้าลอบบี้ (Lobby)"
+    if targetPart then
+        -- ถ้าเจอ ให้วาร์ปไปโผล่ตรงจุดนั้นทันที (บวกขึ้นไปนิดนึงกันจมพื้น)
+        character.HumanoidRootPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+        Btn5.Text = "✅ วาร์ปสำเร็จ!"
+        task.wait(1.5)
+        Btn5.Text = "🎯 สแกนวาร์ปไปจุดชนะ (Win)"
+    else
+        Btn5.Text = "❌ ไม่พบจุดชนะในแมพนี้"
+        task.wait(1.5)
+        Btn5.Text = "🎯 สแกนวาร์ปไปจุดชนะ (Win)"
     end
 end)
-
 
 
 
