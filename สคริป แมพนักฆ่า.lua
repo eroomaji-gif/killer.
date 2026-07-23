@@ -410,7 +410,7 @@ local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 
 -- หมายเหตุ: ใส่ PlaceId ของเกมหน้าลอบบี้ของคุณแทนตัวเลข 0 ด้านล่างนี้ครับ
-local lobbyPlaceId = 0 -- 👈 เปลี่ยนตัวเลข 0 เป็น PlaceId ของแมพ Lobbby ของคุณ
+local lobbyPlaceId = 4580204640 -- 👈 เปลี่ยนตัวเลข 0 เป็น PlaceId ของแมพ Lobbby ของคุณ
 
 local Btn5 = Instance.new("TextButton")
 Btn5.Name = "ScriptButton5"
